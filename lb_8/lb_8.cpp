@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <time.h>
-#include <queue>
+#include <deque>
 using namespace std;
 struct node_queue {
 	int index;
@@ -42,16 +42,13 @@ int main()
 	cout << "Матрица смежности:\n";
 	vector <vector<int>> M(sizeM, vector<int>(sizeM, 0));
 	for (int i = 0; i < sizeM; i++) {
-		for (int j = i; j < sizeM; j++) {
+		for (int j = 0; j < sizeM; j++) {
 			if (i == j) {
 				M[i][j] = 0;
 			}
 			else {
 				M[i][j] = rand() % 2;
-				M[j][i] = M[i][j];
 			}
-		}
-		for (int j = 0; j < sizeM; j++) {
 			printf("%3d ", M[i][j]);
 			if (M[i][j]) {
 				if (i == j) {
@@ -64,42 +61,45 @@ int main()
 	}
 	cout << "Список смежности:\n";
 	print_G(&G);
+	do {
+		cout << "Введите номер вершины(-1 - выйти):\n";
+		cin >> number;
+		number--;
 
-	cout << "Введите номер вершины:\n";
-	cin >> number;
-	number--;
+		cout << "Обход графа в ширину с использованием библиотеки очереди:\n";
+		cout << "Для матрицы:\n";
+		start = clock();
+		BFS(M, number);
+		end = clock();
+		double time_spend = (double)(end - start) / CLOCKS_PER_SEC;
+		cout << "\nВремя работы: " << time_spend << "\n";
 
-	cout << "Обход графа в ширину с использованием библиотеки очереди:\n";
-	cout << "Для матрицы:\n";
-	start = clock();
-	BFS(M, number);
-	end = clock();
-	double time_spend = (double)(end - start) / CLOCKS_PER_SEC;
-	cout << "\nВремя работы: " << time_spend << "\n";
-
-	cout << "Для списка смежности:\n";
-	start = clock();
-	BFS_list(&G, number);
-	end = clock();
-	time_spend = (double)(end - start) / CLOCKS_PER_SEC;
-	cout << "\nВремя работы: " << time_spend << "\n\n";
+		cout << "Для списка смежности:\n";
+		start = clock();
+		BFS_list(&G, number);
+		end = clock();
+		time_spend = (double)(end - start) / CLOCKS_PER_SEC;
+		cout << "\nВремя работы: " << time_spend << "\n\n";
 
 
-	cout << "Обход графа в ширину с использованием структуры очереди:\n";
-	cout << "Для матрицы:\n";
-	start = clock();
-	BFS_struct(M, number);
-	end = clock();
-	time_spend = (double)(end - start) / CLOCKS_PER_SEC;
-	cout << "\nВремя работы: " << time_spend << "\n";
+		cout << "Обход графа в ширину с использованием структуры очереди:\n";
+		cout << "Для матрицы:\n";
+		start = clock();
+		BFS_struct(M, number);
+		end = clock();
+		time_spend = (double)(end - start) / CLOCKS_PER_SEC;
+		cout << "\nВремя работы: " << time_spend << "\n";
 
-	cout << "Для списка смежности:\n";
-	start = clock();
-	BFS_list_struct(&G, number);
-	end = clock();
-	time_spend = (double)(end - start) / CLOCKS_PER_SEC;
-	cout << "\nВремя работы: " << time_spend << "\n\n";
-	
+		cout << "Для списка смежности:\n";
+		start = clock();
+		BFS_list_struct(&G, number);
+		end = clock();
+		time_spend = (double)(end - start) / CLOCKS_PER_SEC;
+		cout << "\nВремя работы: " << time_spend << "\n\n";
+
+	} while (number != -1);
+
+
 
 }
 
@@ -123,21 +123,21 @@ void BFS_struct(vector<vector<int>>& M, int start) {
 }
 void BFS(vector<vector<int>>& M, int start) {
 	vector<bool> visited(M.size(), false);
-	queue<int> q;
+	deque<int> q;
 
-	q.push(start);
+	q.push_back(start);
 	visited[start] = true;
 
 	while (!q.empty()) {
 		int current = q.front();
-		q.pop();
+		q.pop_front();
 		cout << current + 1 << " ";
-
 		for (int i = 0; i < M.size(); i++) {
 			if (M[current][i] == 1 && !visited[i]) {
-				q.push(i);
+				q.push_back(i);
 				visited[i] = true;
 			}
+			int counter = 0;
 		}
 	}
 }
@@ -164,20 +164,20 @@ void BFS_list_struct(Graph* G, int start) {
 }
 void BFS_list(Graph* G, int start) {
 	vector<bool> visited(G->vertexes.size(), false);
-	queue<int> q;
+	deque<int> q;
 
-	q.push(start);
+	q.push_back(start);
 	visited[start] = true;
 
 	while (!q.empty()) {
 		int current = q.front();
-		q.pop();
+		q.pop_front();
 		cout << current + 1 << " ";
 
 		node* tmp = G->vertexes[current];
 		while (tmp != nullptr) {
 			if (!visited[tmp->index]) {
-				q.push(tmp->index);
+				q.push_back(tmp->index);
 				visited[tmp->index] = true;
 			}
 			tmp = tmp->next_node;
